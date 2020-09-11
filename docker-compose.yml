@@ -1,0 +1,36 @@
+version: "3.3"
+
+services:
+
+  traefik:
+    image: "traefik:v2.3"
+    privileged: true
+    container_name: "traefik"
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/etc/docker.sock:ro"
+      - "./traefik.yaml:/etc/traefik/traefik.yaml:ro"
+      - "./tls.yaml:/etc/traefik/tls.yaml:ro"
+    networks:
+      - dockerized
+
+  whoami:
+    image: "containous/whoami"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=HostHeader(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami-secure.entrypoints=websecure"
+      - "traefik.http.routers.whoami-secure.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami-secure.tls=true"
+      - "traefik.http.routers.whoami-secure.tls.certresolver=webresolver"
+    networks:
+      - dockerized
+
+networks:
+  dockerized:
+    external: true

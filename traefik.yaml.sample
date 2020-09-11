@@ -1,0 +1,29 @@
+web:
+  address: ":80"
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+log:
+  level: DEBUG
+  filePath: /var/log/traefik.log
+accessLog:
+  filePath: /var/log/access.log
+  bufferingSize: 100
+api:
+  dashboard: true
+  insecure: true
+providers:
+  docker:
+    watch: true
+    exposedByDefault: false
+    network: dockerized
+    endpoint: "unix:///etc/docker.sock"
+certificatesResolvers:
+  webresolver:
+    acme:
+      email: your_name@ydomain.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: web
